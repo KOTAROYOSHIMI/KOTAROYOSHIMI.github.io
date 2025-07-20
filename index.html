@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Chosen Palette: Warm Neutral -->
     <!-- Application Structure Plan: The application is designed as a digital, interactive version of the provided paper order form. This version introduces a PDF generation feature using jsPDF and html2canvas. On button click, the form is rendered as a PDF and downloaded. Immediately after, a mailto link is triggered, prompting the user to attach the newly created PDF to an email. The order number continues to be auto-incremented and stored in localStorage. -->
-    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. The primary "visualization" is the PDF output itself, created by capturing the main form container with html2canvas and inserting it into a jsPDF document. This provides a high-fidelity, portable version of the user's input. The mailto link's body is updated to instruct the user to attach the downloaded file, bridging the technical gap of direct attachments from the browser. NO SVG/Mermaid is used. -->
+    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. A "mirror" span, visible only on print/PDF, is now used to solve the issue of select element values not rendering in html2canvas captures. The action button is now temporarily hidden via JavaScript during the canvas capture to exclude it from the final PDF. NO SVG/Mermaid is used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -58,12 +58,22 @@
         .btn-danger:hover {
             background-color: #b91c1c;
         }
+        .print-only { 
+            display: none; 
+        }
+        @media print, .pdf-capture-mode {
+             .no-print {
+                display: none !important;
+            }
+        }
         @media print {
             body {
                 background-color: #ffffff;
             }
-            .no-print {
-                display: none;
+            .print-only {
+                display: inline-block !important;
+                border-bottom: 1px solid #d1d5db;
+                padding-bottom: 0.25rem;
             }
             .print-container {
                 box-shadow: none;
@@ -131,7 +141,7 @@
                 
                 <div class="mt-4 space-y-2">
                     <div class="flex items-baseline">
-                        <select id="recipient-company" class="form-select text-lg font-bold w-52" required>
+                        <select id="recipient-company" class="form-select text-lg font-bold w-64 no-print" required>
                             <option value="" disabled selected>会社名を選択</option>
                             <option>東レプラスチック</option>
                             <option>芝軽粗材</option>
@@ -139,10 +149,11 @@
                             <option>新興プラスチックス</option>
                             <option>北陸山宗</option>
                         </select>
+                        <span id="recipient-company-print" class="print-only text-lg font-bold w-64"></span>
                         <span class="ml-2 text-lg font-bold">御中</span>
                     </div>
                     <div class="flex items-baseline">
-                        <input type="text" id="recipient-person" class="form-input text-lg w-52" placeholder="ご担当者名">
+                        <input type="text" id="recipient-person" class="form-input text-lg w-64" placeholder="ご担当者名">
                         <span class="ml-2 text-lg font-bold">様</span>
                     </div>
                 </div>
@@ -248,6 +259,8 @@
             const honshaCheckbox = document.getElementById('sender-honsha');
             const daisanCheckbox = document.getElementById('sender-daisan');
             const orderNoInputEl = document.getElementById('order-no-input');
+            const companySelect = document.getElementById('recipient-company');
+            const companyPrintSpan = document.getElementById('recipient-company-print');
             const ORDER_COUNTER_KEY = 'seplaOrderCounter';
 
             function loadOrderNumber() {
@@ -268,6 +281,17 @@
 
             honshaCheckbox.addEventListener('change', handleCheckboxChange);
             daisanCheckbox.addEventListener('change', handleCheckboxChange);
+            
+            function syncCompanyPrintSpan() {
+                if (companySelect.value) {
+                    companyPrintSpan.textContent = companySelect.value;
+                } else {
+                    companyPrintSpan.textContent = ' '; 
+                }
+            }
+            companySelect.addEventListener('change', syncCompanyPrintSpan);
+            syncCompanyPrintSpan();
+
 
             function createRow() {
                 const tr = document.createElement('tr');
@@ -305,7 +329,6 @@
             }
 
             function generatePdfAndEmail() {
-                const companySelect = document.getElementById('recipient-company');
                 const companyName = companySelect.value;
                 if (!companyName) {
                     alert('会社名を選択してください。');
@@ -323,7 +346,13 @@
 
                 const formContainer = document.getElementById('form-container');
                 
+                // PDF変換の直前にボタンを非表示にするためのクラスを追加
+                formContainer.classList.add('pdf-capture-mode');
+
                 html2canvas(formContainer, { scale: 2 }).then(canvas => {
+                    // 変換が終わったらクラスを削除してボタンを再表示
+                    formContainer.classList.remove('pdf-capture-mode');
+
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new jsPDF({
                         orientation: 'portrait',
@@ -340,7 +369,6 @@
                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
                     pdf.save(pdfFileName);
 
-                    // Proceed to email after a short delay to ensure file download starts
                     setTimeout(() => {
                         prepareEmail(pdfFileName);
                     }, 1000);
@@ -348,7 +376,7 @@
             }
 
             function prepareEmail(pdfFileName) {
-                const companyName = document.getElementById('recipient-company').value;
+                const companyName = companySelect.value;
                 const personName = document.getElementById('recipient-person').value;
                 let recipientText = companyName + ' 御中';
                 if (personName) {
@@ -358,7 +386,6 @@
                 const orderNo = `Y${orderNoInputEl.value}`;
                 const issueDate = document.getElementById('order-date').value;
                 const orderer = document.getElementById('orderer').value || '(担当者名未入力)';
-                const notes = document.getElementById('notes').value;
                 
                 const selectedLocationEl = document.querySelector('input[name="sender-location-cb"]:checked');
                 let senderInfo = '(差出人未選択)';
@@ -366,14 +393,6 @@
                     const label = selectedLocationEl.closest('label').querySelector('.text-left');
                     senderInfo = label.innerText.replace(/\n/g, ' ');
                 }
-
-                let itemsText = '';
-                const rows = itemList.querySelectorAll('tr');
-                rows.forEach((row, index) => {
-                    const itemName = row.querySelector('input[type="text"]').value || '(品名未入力)';
-                    const quantity = row.querySelector('input[type="number"]').value || '0';
-                    itemsText += `品目 ${index + 1}: - 品名: ${itemName}, 数量: ${quantity}\n`;
-                });
 
                 let body = `お世話になっております。\n注文書を添付いたしましたので、ご確認のほどよろしくお願い申し上げます。\n\n`;
                 body += `【重要】\n先ほど保存したPDFファイル「${pdfFileName}」をこのメールに添付してください。\n\n`;
@@ -391,7 +410,6 @@
 
                 window.location.href = mailtoLink;
 
-                // Increment and save the counter for the next order
                 const currentCounter = parseInt(orderNoInputEl.value) || 0;
                 const nextCounter = currentCounter + 1;
                 localStorage.setItem(ORDER_COUNTER_KEY, nextCounter);
