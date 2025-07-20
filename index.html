@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Chosen Palette: Warm Neutral -->
-    <!-- Application Structure Plan: The application is designed as a digital, interactive version of the provided paper order form. This version introduces a PDF generation feature using jsPDF and html2canvas. On button click, the form is rendered as a PDF and downloaded. Immediately after, a mailto link is triggered, prompting the user to attach the newly created PDF to an email. The order number continues to be auto-incremented and stored in localStorage. -->
+    <!-- Application Structure Plan: The application is designed as a digital, interactive version of the provided paper order form. This version introduces a PDF generation feature using jsPDF and html2canvas. A print-only span is now used to mirror the select dropdown's value, ensuring it's reliably captured in the PDF. The order number continues to be auto-incremented and stored in localStorage. -->
     <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. A "mirror" span, visible only on print/PDF, is now used to solve the issue of select element values not rendering in html2canvas captures. The action button is now temporarily hidden via JavaScript during the canvas capture to exclude it from the final PDF. NO SVG/Mermaid is used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -141,7 +141,7 @@
                 
                 <div class="mt-4 space-y-2">
                     <div class="flex items-baseline">
-                        <select id="recipient-company" class="form-select text-lg font-bold w-64 no-print" required>
+                        <select id="recipient-company" class="form-select text-lg font-bold w-64 no-print h-12" required>
                             <option value="" disabled selected>会社名を選択</option>
                             <option>東レプラスチック</option>
                             <option>芝軽粗材</option>
@@ -149,11 +149,11 @@
                             <option>新興プラスチックス</option>
                             <option>北陸山宗</option>
                         </select>
-                        <span id="recipient-company-print" class="print-only text-lg font-bold w-64"></span>
+                        <span id="recipient-company-print" class="print-only text-lg font-bold w-64 h-12"></span>
                         <span class="ml-2 text-lg font-bold">御中</span>
                     </div>
                     <div class="flex items-baseline">
-                        <input type="text" id="recipient-person" class="form-input text-lg w-64" placeholder="ご担当者名">
+                        <input type="text" id="recipient-person" class="form-input text-lg w-64 h-12" placeholder="ご担当者名">
                         <span class="ml-2 text-lg font-bold">様</span>
                     </div>
                 </div>
