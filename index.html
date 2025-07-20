@@ -29,10 +29,6 @@
             box-shadow: 0 0 0 2px #a5b4fc;
             border-color: #6366f1;
         }
-        /* ご担当者名プレースホルダーの文字色を白に設定 */
-        #recipient-person::placeholder {
-            color: white;
-        }
         .btn {
             display: inline-flex;
             align-items: center;
@@ -143,8 +139,7 @@
                     <h1 class="text-3xl font-bold text-gray-900 tracking-widest">　注　文　書</h1>
                     <div class="p-2 bg-gray-100 rounded-md flex items-center">
                         <span class="text-sm font-medium">注文No.</span>
-                        <span class="text-lg font-bold ml-2">Y</span>
-                        <input type="text" id="order-no-input" class="form-input text-lg font-bold w-24 text-center p-1 ml-1 border-gray-400">
+                        <input type="text" id="order-no-input" class="form-input text-lg font-bold w-28 text-center p-1 ml-2 border-gray-400">
                     </div>
                 </div>
                 
@@ -277,7 +272,7 @@
                 if (!counter) {
                     counter = 1; 
                 }
-                orderNoInputEl.value = String(counter).padStart(4, '0');
+                orderNoInputEl.value = `Y${String(counter).padStart(4, '0')}`;
             }
 
             function handleCheckboxChange(event) {
@@ -350,7 +345,7 @@
                     return;
                 }
 
-                const orderNo = `Y${orderNoInputEl.value}`;
+                const orderNo = orderNoInputEl.value;
                 const pdfFileName = `注文書_${orderNo}.pdf`;
 
                 const formContainer = document.getElementById('form-container');
@@ -392,7 +387,7 @@
                     recipientText += `\n${personName} 様`;
                 }
                 
-                const orderNo = `Y${orderNoInputEl.value}`;
+                const orderNo = orderNoInputEl.value;
                 const issueDate = document.getElementById('order-date').textContent;
                 const orderer = document.getElementById('orderer').value || '(担当者名未入力)';
                 
@@ -419,10 +414,10 @@
 
                 window.location.href = mailtoLink;
 
-                const currentCounter = parseInt(orderNoInputEl.value) || 0;
-                const nextCounter = currentCounter + 1;
+                const currentNumericPart = parseInt(orderNo.replace('Y', ''), 10) || 0;
+                const nextCounter = currentNumericPart + 1;
                 localStorage.setItem(ORDER_COUNTER_KEY, nextCounter);
-                orderNoInputEl.value = String(nextCounter).padStart(4, '0');
+                orderNoInputEl.value = `Y${String(nextCounter).padStart(4, '0')}`;
             }
 
             generatePdfBtn.addEventListener('click', generatePdfAndEmail);
