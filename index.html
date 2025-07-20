@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Chosen Palette: Warm Neutral -->
     <!-- Application Structure Plan: The application is designed as a digital, interactive version of the provided paper order form. This version introduces a PDF generation feature using jsPDF and html2canvas. A print-only span is now used to mirror the select dropdown's value, ensuring it's reliably captured in the PDF. The order number continues to be auto-incremented and stored in localStorage. -->
-    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. A "mirror" span, visible only on print/PDF, is now used to solve the issue of select element values not rendering in html2canvas captures. UI-only elements are now hidden reliably by adding a specific class to the container during canvas capture, which CSS rules use to show/hide elements appropriately. NO SVG/Mermaid is used. -->
+    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. A "mirror" span, visible only on print/PDF, is now used to solve the issue of select element values not rendering in html2canvas captures. UI-only elements are now hidden reliably by directly manipulating their style's display property before the canvas capture and restoring it immediately after. NO SVG/Mermaid is used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -61,26 +61,24 @@
         .print-only { 
             display: none; 
         }
+        .pdf-capture-mode .no-print {
+            display: none !important;
+        }
+        .pdf-capture-mode .print-only {
+            display: inline-block !important;
+        }
 
-        /* PDFキャプチャ中と印刷時のスタイル */
-        .pdf-capture-mode .no-print,
         @media print {
             .no-print {
                 display: none !important;
             }
-        }
-        .pdf-capture-mode .print-only,
-        @media print {
+            body {
+                background-color: #ffffff;
+            }
             .print-only {
                 display: inline-block !important;
                 border-bottom: 1px solid #d1d5db;
                 padding-bottom: 0.25rem;
-            }
-        }
-
-        @media print {
-            body {
-                background-color: #ffffff;
             }
             .print-container {
                 box-shadow: none;
