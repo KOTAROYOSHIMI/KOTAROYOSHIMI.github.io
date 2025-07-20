@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Chosen Palette: Warm Neutral -->
     <!-- Application Structure Plan: The application is designed as a digital, interactive version of the provided paper order form. This version introduces a PDF generation feature using jsPDF and html2canvas. A print-only span is now used to mirror the select dropdown's value, ensuring it's reliably captured in the PDF. The order number continues to be auto-incremented and stored in localStorage. -->
-    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. A "mirror" span, visible only on print/PDF, is now used to solve the issue of select element values not rendering in html2canvas captures. The action button is now temporarily hidden via JavaScript during the canvas capture to exclude it from the final PDF. NO SVG/Mermaid is used. -->
+    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. A "mirror" span, visible only on print/PDF, is now used to solve the issue of select element values not rendering in html2canvas captures. The action button and other UI-only elements are now temporarily hidden via JavaScript during the canvas capture to exclude them from the final PDF. NO SVG/Mermaid is used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -61,12 +61,12 @@
         .print-only { 
             display: none; 
         }
-        @media print, .pdf-capture-mode {
-             .no-print {
+        /* PDFキャプチャ中と印刷時に.no-printクラスを持つ要素を非表示にする */
+        .pdf-capture-mode .no-print,
+        @media print {
+            .no-print {
                 display: none !important;
             }
-        }
-        @media print {
             body {
                 background-color: #ffffff;
             }
