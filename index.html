@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Chosen Palette: Warm Neutral -->
     <!-- Application Structure Plan: The application is designed as a digital, interactive version of the provided paper order form. This version introduces a PDF generation feature using jsPDF and html2canvas. A print-only span is now used to mirror the select dropdown's value, ensuring it's reliably captured in the PDF. The order number continues to be auto-incremented and stored in localStorage. -->
-    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. The mailto link's recipient is now determined based on the selected company, routing the order to the correct email address. UI-only elements are hidden during PDF capture. NO SVG/Mermaid is used. -->
+    <!-- Visualization & Content Choices: Interactive HTML form elements are used for data capture. The mailto link's recipient is now determined based on the selected company from a mapping object, routing the order to the correct email address(es). UI-only elements are hidden during PDF capture. NO SVG/Mermaid is used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -398,9 +398,9 @@
                     const label = selectedLocationEl.closest('label').querySelector('.text-left');
                     senderInfo = label.innerText.replace(/\n/g, ' ');
                 }
-                
+
                 const emailMap = {
-                    '東レプラスチック': 'teehaff0@gmail.com',
+                    '東レプラスチック': 'kentaro.nakamura.p8@mail.toray,yumi.noda.g5@mail.toray,satomi.shimozato.k2@mail.toray',
                     '芝軽粗材': 'teehaff0@gmail.com',
                     '緑川化成': 'teehaff0@gmail.com',
                     '新興プラスチックス': 'teehaff0@gmail.com',
